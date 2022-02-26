@@ -1,13 +1,18 @@
 <template>
   <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
-    <router-view />
+    <Chart />
   </div>
 </template>
+<script>
+import Chart from "@/components/Chart.vue";
 
+export default {
+  name: "HomeView",
+  components: {
+    Chart,
+  },
+};
+</script>
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
