@@ -12,11 +12,16 @@
 
 <script>
 import axios from "axios";
+import { zonedTimeToUtc } from "date-fns-tz";
 
 export default {
   name: "Chart-Component",
   data() {
     return {
+      groupingUnits: [
+        ["week", [1]],
+        ["month", [1, 2, 3, 4, 6]],
+      ],
       chartOptions: {
         rangeSelector: {
           selected: 1,
@@ -73,8 +78,9 @@ export default {
     await this.getData();
     this.chartOptions.title.text = this.data?.["Meta Data"]?.["1. Information"];
     const name = this.data?.["Meta Data"]?.["2. Symbol"];
+    const timezone = this.data?.["Meta Data"]?.["6. Time Zone"];
     for (const item in this.data?.["Time Series (5min)"]) {
-      const timeInepoch = new Date(item).getTime();
+      const timeInepoch = zonedTimeToUtc(new Date(item), timezone).getTime();
       try {
         const open = parseFloat(
           this.data?.["Time Series (5min)"]?.[item]?.["1. open"]
@@ -104,15 +110,32 @@ export default {
       {
         type: "candlestick",
         name: name,
+        id: "candlestick",
         data: this.stockData,
       },
       {
         type: "column",
         name: "Volume",
+        id: "volume",
         data: this.volume,
         yAxis: 1,
       },
+      {
+        type: "sma",
+        linkedTo: "candlestick",
+        zIndex: 1,
+        marker: {
+          enabled: false,
+        },
+      },
     ];
+    this.chartOptions.plotOptions = {
+      series: {
+        dataGrouping: {
+          units: this.groupingUnits,
+        },
+      },
+    };
     this.loading = false;
   },
   methods: {
